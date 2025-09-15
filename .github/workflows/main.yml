@@ -8,19 +8,29 @@ jobs:
       - name: Set up Python
         uses: actions/setup-python@v4
         with:
-          python-version: '3.11'  # 根据你的Python版本修改
+          python-version: '3.11'
+      - name: Cache dependencies
+        uses: actions/cache@v3
+        with:
+          path: ~/Library/Caches/pip
+          key: ${{ runner.os }}-pip-${{ hashFiles('**/requirements.txt') }}
+          restore-keys: |
+            ${{ runner.os }}-pip-
       - name: Install dependencies
         run: |
           pip install py2app
+          brew install python-tk
+      - name: Generate version
+        id: version
+        run: |
+          echo "VERSION=$(date +'%Y.%m.%d')" >> $GITHUB_ENV
       - name: Build App
         run: |
           py2applet --make-setup find_duplicate_files.py
           python setup.py py2app
+          mv dist/find_duplicate_files.app dist/FindDuplicateFiles_${{ env.VERSION }}.app
       - name: Upload Artifact
         uses: actions/upload-artifact@v4
         with:
-          name: FindDuplicateFiles.app
-          path: dist/find_duplicate_files.app
-      - name: Create DMG
-        run: |
-              hdiutil create -volname "FindDuplicateFiles" -srcfolder dist/ -ov -format UDZO FindDuplicateFiles.dmg
+          name: FindDuplicateFiles_${{ env.VERSION }}.app
+          path: dist/FindDuplicateFiles_${{ env.VERSION }}.app
