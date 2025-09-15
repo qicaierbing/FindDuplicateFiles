@@ -1,0 +1,23 @@
+name: Build macOS App
+on: push
+jobs:
+  build:
+    runs-on: macos-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Set up Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: '3.11'  # 根据你的Python版本修改
+      - name: Install dependencies
+        run: |
+          pip install py2app
+      - name: Build App
+        run: |
+          py2applet --make-setup find_duplicate_files.py
+          python setup.py py2app
+      - name: Upload Artifact
+        uses: actions/upload-artifact@v3
+        with:
+          name: FindDuplicateFiles.app
+          path: dist/find_duplicate_files.app
