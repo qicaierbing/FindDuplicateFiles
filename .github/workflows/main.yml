@@ -21,3 +21,6 @@ jobs:
         with:
           name: FindDuplicateFiles.app
           path: dist/find_duplicate_files.app
+      - name: Create DMG
+        run: |
+              hdiutil create -volname "FindDuplicateFiles" -srcfolder dist/ -ov -format UDZO FindDuplicateFiles.dmg
